@@ -1,5 +1,4 @@
 import json
-from collections import defaultdict
 from datetime import datetime
 from pprint import pprint
 
@@ -9,7 +8,6 @@ from peewee import DoesNotExist
 from . import db
 
 epoch = datetime.utcfromtimestamp(0)
-_cache = defaultdict(dict)
 
 
 @click.command()
@@ -72,22 +70,6 @@ def datetime_to_epoch_ms(dt):
     return (dt - epoch).total_seconds() * 1000.0
 
 
-def cached(cache_name):
-    """A decorator to cache return values of the wrapped function."""
-    def decorator(func):
-        def inner(*args, **kwargs):
-            cache_key = json.dumps(args) + json.dumps(kwargs)
-            try:
-                _cache[cache_name][cache_key]
-                return _cache[cache_name][cache_key]
-            except KeyError:
-                result = func(*args, **kwargs)
-                _cache[cache_name][cache_key] = result
-                return result
-        return inner
-    return decorator
-
-
 def get_current_auctions():
     """Return auctions that are not yet expired.
 
@@ -100,7 +82,6 @@ def get_current_auctions():
     return auctions
 
 
-@cached("character_names")
 def get_character_name_by_id(character_id):
     try:
         return db.Characters.get(guid=character_id).name
@@ -108,32 +89,21 @@ def get_character_name_by_id(character_id):
         return None
 
 
-@cached("serialized_item_templates")
-def get_serialized_item_template_by_id(template_id, locale=None):
+def get_serialized_item_by_id(item_id, locale=None):
     try:
-        template = db.ItemTemplate.get(entry=template_id)
+        instance = db.ItemInstance.get(guid=item_id)
+        template = db.ItemTemplate.get(entry=instance.itementry)
         template_name = template.name
         if locale is not None:
-            template_name = db.ItemTemplateLocale.get(id=template_id,
+            template_name = db.ItemTemplateLocale.get(id=instance.itementry,
                                                       locale=locale).name
         return {
             "id": template.entry,
+            "count": instance.count,
             "quality": template.quality,
             "name": template_name,
             "requiredlevel": template.requiredlevel
         }
-    except DoesNotExist:
-        return None
-
-
-@cached("serialized_items")
-def get_serialized_item_by_id(item_id, locale=None):
-    try:
-        instance = db.ItemInstance.get(guid=item_id)
-        serialized_template = get_serialized_item_template_by_id(
-            instance.itementry)
-        serialized_template["count"] = instance.count
-        return serialized_template
     except DoesNotExist:
         return None
 

@@ -10,8 +10,8 @@ from peewee import TextField
 
 
 # http://docs.peewee-orm.com/en/latest/peewee/database.html#run-time-database-configuration  # noqa
-characters_db = MySQLDatabase("characters")
-world_db = MySQLDatabase("world")
+characters_db = MySQLDatabase(None)
+world_db = MySQLDatabase(None)
 
 
 class CharactersBaseModel(Model):

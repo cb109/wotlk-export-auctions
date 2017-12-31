@@ -1,3 +1,5 @@
+"""Export current auction house data to JSON."""
+
 import json
 from datetime import datetime
 from pprint import pprint
@@ -185,4 +187,4 @@ def get_serialized_item_by_id(item_id, locale=None):
 
 
 if __name__ == "__main__":
-    cli(auto_envvar_prefix="EXPORT_AUCTIONS")
+    cli()

@@ -1,10 +1,9 @@
-import sys
-import time
+import json
 from datetime import datetime
+from pprint import pprint
 
 import click
 from peewee import DoesNotExist
-from peewee import Using
 
 from . import db
 
@@ -17,7 +16,7 @@ epoch = datetime.utcfromtimestamp(0)
 @click.option("-p", "--port", default=3306, help="MySQL port (default: 3306)")
 @click.option("-u", "--user", required=True, help="MySQL user")
 @click.option("-P", "--password", required=True, help="MySQL password")
-@click.option("-o", "--outfile", type=click.File(mode="w", encoding="utf-8"),
+@click.option("-o", "--outfile", type=click.File(mode="w", atomic=True),
               help="File to save exported data to")
 @click.option("-L", "--locale", type=click.Choice(["deDE", "esES", "esMX",
                                                    "frFR", "koKR", "ruRU",
@@ -25,13 +24,12 @@ epoch = datetime.utcfromtimestamp(0)
               help=("If specified, use this locale to translate item names "
                     "(default is english)"))
 def cli(host, port, user, password, outfile, locale):
-    start = time.time()
     init_databases(host, port, user, password)
     data = query(locale)
-    from pprint import pprint; pprint(data)
-    stop = time.time()
-    sys.stdout.write("===\n Export took: {0:.2f} seconds\n"
-                     .format(stop - start))
+    if outfile is None:
+        pprint(data)
+    else:
+        outfile.write(json.dumps(data, indent=4, encoding="utf-8"))
 
 
 def query(locale):

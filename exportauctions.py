@@ -5,9 +5,85 @@ from pprint import pprint
 import click
 from peewee import DoesNotExist
 
-from . import db
+from peewee import CharField
+from peewee import CompositeKey
+from peewee import IntegerField
+from peewee import Model
+from peewee import MySQLDatabase
+from peewee import PrimaryKeyField
+from peewee import TextField
+
 
 epoch = datetime.utcfromtimestamp(0)
+
+# http://docs.peewee-orm.com/en/latest/peewee/database.html#run-time-database-configuration  # noqa
+characters_db = MySQLDatabase(None)
+world_db = MySQLDatabase(None)
+
+
+class CharactersBaseModel(Model):
+    class Meta:
+        database = characters_db
+
+
+class WorldBaseModel(Model):
+    class Meta:
+        database = world_db
+
+
+class Characters(CharactersBaseModel):
+    guid = PrimaryKeyField()
+    name = CharField(index=True)
+
+    class Meta:
+        db_table = "characters"
+
+
+class Auctionhouse(CharactersBaseModel):
+    buyguid = IntegerField()
+    buyoutprice = IntegerField()
+    deposit = IntegerField()
+    houseid = IntegerField()
+    itemguid = IntegerField(unique=True)
+    itemowner = IntegerField()
+    lastbid = IntegerField()
+    startbid = IntegerField()
+    time = IntegerField()
+
+    class Meta:
+        db_table = "auctionhouse"
+
+
+class ItemInstance(CharactersBaseModel):
+    count = IntegerField()
+    guid = PrimaryKeyField()
+    itementry = IntegerField(db_column="itemEntry")
+
+    class Meta:
+        db_table = "item_instance"
+
+
+class ItemTemplate(WorldBaseModel):
+    quality = IntegerField(db_column="Quality")
+    requiredlevel = IntegerField(db_column="RequiredLevel")
+    entry = PrimaryKeyField()
+    name = CharField(index=True)
+
+    class Meta:
+        db_table = "item_template"
+
+
+class ItemTemplateLocale(WorldBaseModel):
+    id = IntegerField(db_column="ID")
+    name = TextField(db_column="Name", null=True)
+    locale = CharField()
+
+    class Meta:
+        db_table = "item_template_locale"
+        indexes = (
+            (("id", "locale"), True),
+        )
+        primary_key = CompositeKey("id", "locale")
 
 
 @click.command()
@@ -60,10 +136,9 @@ def query(locale):
 
 
 def init_databases(host, port, user, password):
-    db.characters_db.init("characters", host=host, port=port,
-                          user=user, password=password)
-    db.world_db.init("world", host=host, port=port,
-                     user=user, password=password)
+    characters_db.init("characters", host=host, port=port, user=user,
+                       password=password)
+    world_db.init("world", host=host, port=port, user=user, password=password)
 
 
 def datetime_to_epoch_ms(dt):
@@ -78,25 +153,26 @@ def get_current_auctions():
     auctions by accident.
     """
     now = datetime_to_epoch_ms(datetime.now())
-    auctions = db.Auctionhouse.select().where(db.Auctionhouse.time >= now)
+    # auctions = Auctionhouse.select().where(Auctionhouse.time >= now)
+    auctions = Auctionhouse.select().where(Auctionhouse.time <= now)  # TEMP
     return auctions
 
 
 def get_character_name_by_id(character_id):
     try:
-        return db.Characters.get(guid=character_id).name
+        return Characters.get(guid=character_id).name
     except DoesNotExist:
         return None
 
 
 def get_serialized_item_by_id(item_id, locale=None):
     try:
-        instance = db.ItemInstance.get(guid=item_id)
-        template = db.ItemTemplate.get(entry=instance.itementry)
+        instance = ItemInstance.get(guid=item_id)
+        template = ItemTemplate.get(entry=instance.itementry)
         template_name = template.name
         if locale is not None:
-            template_name = db.ItemTemplateLocale.get(id=instance.itementry,
-                                                      locale=locale).name
+            template_name = ItemTemplateLocale.get(id=instance.itementry,
+                                                   locale=locale).name
         return {
             "id": template.entry,
             "count": instance.count,

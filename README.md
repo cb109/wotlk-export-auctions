@@ -17,6 +17,7 @@ First clone the project and open a `cmd.exe`. Make sure to `cd` into the project
 
     > virtualenv venv
     > venv/Scripts/activate.bat
+    > python -m pip install --upgrade pip
     > pip install -r requirements.txt
 
 ## Build on Windows
@@ -26,7 +27,7 @@ The script and all its dependencies can be built into a single executable for ea
     > pyinstaller export_auctions.py --onefile
     # Result is placed in: dist/export_auctions.exe
 
-## Usage Examples
+## Usage
 
     # See usage info
     > python exportauctions.py --help
@@ -36,3 +37,53 @@ The script and all its dependencies can be built into a single executable for ea
 
     # Output results to a file and use a specific locale
     > python exportauctions.py -u readonly_user -P mypassword --locale deDE --outfile auctions.json
+
+
+## Example Result
+
+```
+{
+    "locale": null,
+    "auctions": [
+        {
+            "buyoutprice": 50500,
+            "item": {
+                "count": 20,
+                "quality": 1,
+                "id": 8766,
+                "requiredlevel": 45,
+                "name": "Morning Glory Dew"
+            },
+            "houseid": 11,
+            "deposit": 2400,
+            "time": 1514799636,
+            "owner": {
+                "name": "Buyer"
+            },
+            "id": 11,
+            "lastbid": 5000,
+            "startbid": 5000
+        },
+        {
+            "buyoutprice": 10100,
+            "item": {
+                "count": 5,
+                "quality": 1,
+                "id": 33449,
+                "requiredlevel": 65,
+                "name": "Crusty Flatbread"
+            },
+            "houseid": 18,
+            "deposit": 1260,
+            "time": 1514910251,
+            "owner": {
+                "name": "Testboy"
+            },
+            "id": 18,
+            "lastbid": 0,
+            "startbid": 3187
+        }
+    ],
+    "time": 1514744535337.0
+}
+```

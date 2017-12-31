@@ -1,5 +1,20 @@
-"""Export current auction house data to JSON."""
+"""
+Export current auction house data to JSON.
 
+Usage: exportauctions.py [OPTIONS]
+
+Options:
+  -h, --host TEXT                 MySQL host (default: 127.0.0.1)
+  -p, --port INTEGER              MySQL port (default: 3306)
+  -u, --user TEXT                 MySQL user  [required]
+  -P, --password TEXT             MySQL password  [required]
+  -o, --outfile FILENAME          File to save exported data to
+  -L, --locale [deDE|esES|esMX|frFR|koKR|ruRU|zhCN|zhTW]
+                                  If specified, use this locale to translate
+                                  item names (default is english)
+  --help                          Show this message and exit.
+
+"""
 import json
 from datetime import datetime
 from pprint import pprint

@@ -10,8 +10,8 @@ Options:
   -P, --password TEXT             MySQL password  [required]
   -o, --outfile FILENAME          File to save exported data to
   -L, --locale [deDE|esES|esMX|frFR|koKR|ruRU|zhCN|zhTW]
-                                  If specified, use this locale to translate
-                                  item names (default is english)
+                                  If specified, add the translated item name
+                                  to the result (english is always included)
   --help                          Show this message and exit.
 
 """
@@ -111,11 +111,10 @@ class ItemTemplateLocale(WorldBaseModel):
 @click.option("-P", "--password", required=True, help="MySQL password")
 @click.option("-o", "--outfile", type=click.File(mode="w", atomic=True),
               help="File to save exported data to")
-@click.option("-L", "--locale", type=click.Choice(["deDE", "esES", "esMX",
-                                                   "frFR", "koKR", "ruRU",
-                                                   "zhCN", "zhTW"]),
-              help=("If specified, use this locale to translate item names "
-                    "(default is english)"))
+@click.option("-L", "--locale", default="deDE", type=click.Choice([
+    "deDE", "esES", "esMX", "frFR", "koKR", "ruRU", "zhCN", "zhTW"]),
+    help=("If specified, add the translated item name to the result "
+          "(english is always included)"))
 def cli(host, port, user, password, outfile, locale):
     init_databases(host, port, user, password)
     data = query(locale)
@@ -187,16 +186,18 @@ def get_serialized_item_by_id(item_id, locale=None):
         instance = ItemInstance.get(guid=item_id)
         template = ItemTemplate.get(entry=instance.itementry)
         template_name = template.name
-        if locale is not None:
-            template_name = ItemTemplateLocale.get(id=instance.itementry,
-                                                   locale=locale).name
-        return {
+        data = {
             "id": template.entry,
             "count": instance.count,
             "quality": template.quality,
             "name": template_name,
             "requiredlevel": template.requiredlevel
         }
+        if locale is not None:
+            locale_name = ItemTemplateLocale.get(id=instance.itementry,
+                                                 locale=locale).name
+            data["locale_name"] = locale_name
+        return data
     except DoesNotExist:
         return None
 

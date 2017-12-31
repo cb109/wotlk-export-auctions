@@ -2,6 +2,8 @@
 
 A commandline utility to export WoW auction house data to JSON.
 
+The idea is to make the information visible in the auction house available for external clients.
+
 ## Motivation
 
 The auction house simulates a market with real supply-and-demand mechanisms, because it is entirely driven by real people. Analyzing the current supply to be able to make informed decisions about when to buy and when to sell is an appealing task, but it needs data: The exported data from this script can be used to feed custom clients that help with this.
@@ -24,8 +26,8 @@ First clone the project and open a `cmd.exe`. Make sure to `cd` into the project
 
 The script and all its dependencies can be built into a single executable for easy deployment.
 
-    > pyinstaller export_auctions.py --onefile
-    # Result is placed in: dist/export_auctions.exe
+    > pyinstaller exportauctions.py --onefile
+    # Result is placed in: dist/exportauctions.exe
 
 ## Usage
 
@@ -33,45 +35,47 @@ The script and all its dependencies can be built into a single executable for ea
     > python exportauctions.py --help
 
     # Output results to STDOUT
-    > python exportauctions.py -u readonly_user -P mypassword
+    > python exportauctions.py --user myuser --password mypassword
 
     # Output results to a file and use a specific locale
-    > python exportauctions.py -u readonly_user -P mypassword --locale deDE --outfile auctions.json
+    > python exportauctions.py --user myuser --password mypassword --locale deDE --outfile auctions.json
 
 
 ## Example Result
 
 ```
 {
-    "locale": null,
+    "locale": "deDE",
     "auctions": [
         {
             "buyoutprice": 50500,
             "item": {
                 "count": 20,
+                "name": "Morning Glory Dew",
+                "requiredlevel": 45,
                 "quality": 1,
                 "id": 8766,
-                "requiredlevel": 45,
-                "name": "Morning Glory Dew"
+                "locale_name": "Trichterwindentau"
             },
-            "houseid": 11,
+            "houseid": 6,
             "deposit": 2400,
             "time": 1514799636,
             "owner": {
                 "name": "Buyer"
             },
-            "id": 11,
-            "lastbid": 5000,
+            "id": 6,
+            "lastbid": 0,
             "startbid": 5000
         },
         {
             "buyoutprice": 10100,
             "item": {
                 "count": 5,
+                "name": "Crusty Flatbread",
+                "requiredlevel": 65,
                 "quality": 1,
                 "id": 33449,
-                "requiredlevel": 65,
-                "name": "Crusty Flatbread"
+                "locale_name": "Knuspriges Fladenbrot"
             },
             "houseid": 18,
             "deposit": 1260,

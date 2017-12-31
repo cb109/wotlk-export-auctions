@@ -168,8 +168,7 @@ def get_current_auctions():
     auctions by accident.
     """
     now = datetime_to_epoch_ms(datetime.now())
-    # auctions = Auctionhouse.select().where(Auctionhouse.time >= now)
-    auctions = Auctionhouse.select().where(Auctionhouse.time <= now)  # TEMP
+    auctions = Auctionhouse.select().where(Auctionhouse.time >= now)
     return auctions
 
 

@@ -9,19 +9,19 @@ from peewee import PrimaryKeyField
 from peewee import TextField
 
 
-characters_database = MySQLDatabase("characters",
-                                    **{"password": "", "user": ""})
-world_database = MySQLDatabase("world", **{"password": "", "user": ""})
+# http://docs.peewee-orm.com/en/latest/peewee/database.html#run-time-database-configuration  # noqa
+characters_db = MySQLDatabase("characters")
+world_db = MySQLDatabase("world")
 
 
 class CharactersBaseModel(Model):
     class Meta:
-        database = characters_database
+        database = characters_db
 
 
 class WorldBaseModel(Model):
     class Meta:
-        database = world_database
+        database = world_db
 
 
 class Characters(CharactersBaseModel):

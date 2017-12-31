@@ -12,4 +12,5 @@ macholib==1.9             # via pyinstaller
 peewee==2.10.2
 pefile==2017.11.5         # via pyinstaller
 pyinstaller==3.3.1
+pymysql==0.8.0
 pypiwin32==219            # via pyinstaller

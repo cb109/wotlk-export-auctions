@@ -20,10 +20,9 @@ from datetime import datetime
 from pprint import pprint
 
 import click
-from peewee import DoesNotExist
-
 from peewee import CharField
 from peewee import CompositeKey
+from peewee import DoesNotExist
 from peewee import IntegerField
 from peewee import Model
 from peewee import MySQLDatabase
